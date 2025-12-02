@@ -1,0 +1,80 @@
+============================================================]
+api_1    | 🚀 JOB INICIADO - 02/12/2025, 09:39:09
+api_1    |    Job ID: 18345
+api_1    |    Operación: update
+api_1    |    Tabla: CUNOTA
+api_1    |    Cliente: XALAP_AVILA
+api_1    |    Registros: 100
+api_1    | [============================================================]
+api_1    |
+api_1    | [INFO] ✅ Batch procesado exitosamente {
+api_1    |   job_id: '18345',
+api_1    |   operation: 'update',
+api_1    |   table: 'CUNOTA',
+api_1    |   success_count: 100,
+api_1    |   error_count: 0,
+api_1    |   total_records: 100,
+api_1    |   duration_ms: 88,
+api_1    |   duration_formatted: '88ms',
+api_1    |   throughput: '1136.36 rec/s',
+api_1    |   start_time: '02/12/2025, 09:39:09',
+api_1    |   end_time: '02/12/2025, 09:39:09'
+api_1    | }
+api_1    |
+api_1    | [============================================================]
+api_1    | ✅ JOB COMPLETADO - 02/12/2025, 09:39:09
+api_1    |    Job ID: 18345
+api_1    |    Duración: 88ms
+api_1    |    Throughput: 1136.36 rec/s
+api_1    |    Exitosos: 100/100
+api_1    |    Errores: 0/100
+api_1    | [============================================================]
+api_1    |
+api_1    | [INFO] 🎉 Batch completado exitosamente {
+api_1    |   job_id: '18345',
+api_1    |   table: 'CUNOTA',
+api_1    |   operation: 'update',
+api_1    |   success_count: 100,
+api_1    |   error_count: 0,
+api_1    |   duration_ms: 93,
+api_1    |   duration_formatted: '93ms',
+api_1    |   completed_at: '02/12/2025, 09:39:09'
+api_1    | }
+api_1    | [02/12/2025, 09:39:09] 🎉 Job 18345 completado - 93ms
+api_1    | 📝 Added XALAP_AVILA to buffer (size: 1)
+api_1    | 🔍 Headers: text/plain
+api_1    | 🔍 Body type: string
+api_1    | 📦 Procesando NDJSON en ItemsRoute...
+api_1    | ✅ NDJSON parseado: 100 registros para XALAP_AVILA
+api_1    | 1️⃣ Parseo completado
+api_1    | 2️⃣ Validaciones pasadas
+api_1    | 3️⃣ Intentando encolar en Redis...
+api_1    | 4️⃣ Encolado exitoso, job ID: 18346
+api_1    | 5️⃣ Enviando respuesta...
+api_1    | 6️⃣ Respuesta enviada
+api_1    | [INFO] 🚀 Iniciando procesamiento de batch {
+api_1    |   job_id: '18346',
+api_1    |   operation: 'update',
+api_1    |   table: 'CUNOTA',
+api_1    |   client: 'XALAP_AVILA',
+api_1    |   records_count: 100,
+api_1    |   field_id: 'recno_id',
+api_1    |   start_time: '02/12/2025, 09:39:10'
+api_1    | }
+api_1    |
+api_1    | [============================================================]
+api_1    | 🚀 JOB INICIADO - 02/12/2025, 09:39:10
+api_1    |    Job ID: 18346
+api_1    |    Operación: update
+api_1    |    Tabla: CUNOTA
+api_1    |    Cliente: XALAP_AVILA
+api_1    |    Registros: 100
+api_1    | [============================================================]
+api_1    |
+api_1    | ⏰ Periodic flush triggered (buffer size: 1)
+api_1    | ✓ Flushed 1 client activities
+api_1    | Error al guardar batch en tabla de operaciones: error: could not extend file "base/16388/125604": No space left on device
+api_1    |     at /app/node_modules/pg/lib/client.js:545:17
+api_1    |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+api_1    |     at async OperationsRepository.saveOperationsBatch (/app/src/repositories/operationsRepository.js:137:7)
+api_1    |     at async PostgresService.batchUpdate (/app/src/services/postgresService.js:451:7)

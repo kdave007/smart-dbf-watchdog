@@ -1,0 +1,9 @@
+{
+    "sucursal":"DUMMY",
+    "plaza":"XALAP",
+    "testing_api_key":"LWDSDxN2tH",
+    "config":"ENV",
+    "config_endpoint":"localhost:3000/settings",
+    "dll_file_name":"Advantage.Data.Provider.dll",
+    "data_source":"C:\\Users\\campo\\Documents\\projects\\data_sucursales\\atenas"
+}

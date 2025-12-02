@@ -1,66 +1,85 @@
 """
-Logger simple para el watchdog - 1 archivo por día, rotación automática
+Logger simple con archivo por día - formato: YYYY-MM-DD.log
 """
-import os
 from datetime import datetime
 from pathlib import Path
 
 
-class SimpleLogger:
-    """Logger que escribe en watchdog.log y lo rota diariamente"""
+class DailyLogger:
+    """Logger que crea un archivo nuevo cada día"""
     
     def __init__(self, log_dir="logs"):
         self.log_dir = Path(log_dir)
-        self.log_file = self.log_dir / "watchdog.log"
         self._ensure_log_dir()
         
-        # Verificar si necesitamos rotar (nuevo día)
-        self._rotate_if_needed()
+        # Obtener archivo de log para HOY
+        self.current_log_file = self._get_todays_log_file()
+        
+        # Escribir encabezado si es archivo nuevo
+        self._write_header()
     
     def _ensure_log_dir(self):
         """Crear directorio de logs si no existe"""
         self.log_dir.mkdir(exist_ok=True)
     
-    def _rotate_if_needed(self):
-        """Renombrar watchdog.log si es de otro día"""
-        if not self.log_file.exists():
-            return
-        
-        # Obtener fecha de modificación del archivo
-        mod_time = datetime.fromtimestamp(self.log_file.stat().st_mtime)
-        
-        # Si el archivo es de ayer o antes, rotarlo
-        if mod_time.date() < datetime.now().date():
-            # Renombrar a YYYY-MM-DD.log
-            new_name = mod_time.strftime("%Y-%m-%d.log")
-            backup_file = self.log_dir / new_name
-            
-            # Si ya existe un backup con ese nombre, agregar número
-            counter = 1
-            while backup_file.exists():
-                new_name = mod_time.strftime(f"%Y-%m-%d-{counter}.log")
-                backup_file = self.log_dir / new_name
-                counter += 1
-            
-            self.log_file.rename(backup_file)
-            self._write(f"[LOGGER] Log rotado a {new_name}")
+    def _get_todays_log_file(self):
+        """Obtener ruta del archivo de log para hoy"""
+        today = datetime.now().strftime("%Y-%m-%d")
+        return self.log_dir / f"watchdog_{today}.log"
     
-    def _write(self, message):
-        """Escribe mensaje en el archivo de log"""
+    def _check_new_day(self):
+        """Verificar si es un nuevo día y cambiar archivo si es necesario"""
+        expected_file = self._get_todays_log_file()
+        
+        if self.current_log_file != expected_file:
+            # ¡Es un nuevo día!
+            old_file = self.current_log_file
+            self.current_log_file = expected_file
+            
+            # Escribir encabezado en nuevo archivo
+            self._write_header()
+            
+            # Registrar cambio en el viejo (si existe)
+            if old_file.exists():
+                self._write_to_file(old_file, f"[LOGGER] Continuado en {self.current_log_file.name}")
+            
+            # Registrar inicio en el nuevo
+            self._write(f"[LOGGER] Iniciando nuevo día - Archivo anterior: {old_file.name}")
+    
+    def _write_header(self):
+        """Escribir encabezado en archivo nuevo"""
+        if not self.current_log_file.exists():
+            header = f"[LOGGER] Archivo de log creado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            header += "[LOGGER] Formato: [FECHA] NIVEL - Mensaje\n"
+            header += "="*60 + "\n"
+            
+            with open(self.current_log_file, 'a', encoding='utf-8') as f:
+                f.write(header)
+    
+    def _write_to_file(self, file_path, message):
+        """Escribe mensaje en archivo específico"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_line = f"[{timestamp}] {message}\n"
         
         try:
-            with open(self.log_file, 'a', encoding='utf-8') as f:
+            with open(file_path, 'a', encoding='utf-8') as f:
                 f.write(log_line)
         except Exception:
             # Si falla, no hacemos nada (no queremos crashear el watchdog)
             pass
     
+    def _write(self, message):
+        """Escribe mensaje en archivo de log actual"""
+        # Primero verificar si es nuevo día
+        self._check_new_day()
+        
+        # Escribir en archivo actual
+        self._write_to_file(self.current_log_file, message)
+    
     def info(self, message):
         """Log de información normal"""
         self._write(f"INFO - {message}")
-        print(f"[INFO] {message}")  # También en consola para desarrollo
+        print(f"[INFO] {message}")
     
     def warning(self, message):
         """Log de advertencia"""
@@ -77,10 +96,14 @@ class SimpleLogger:
         status_file = Path.cwd() / "status.txt"
         try:
             with open(status_file, 'w', encoding='utf-8') as f:
-                f.write(status_line)
+                f.write(f"{datetime.now().strftime('%H:%M')} - {status_line}")
         except Exception:
             pass
+    
+    def get_current_log_file(self):
+        """Obtener nombre del archivo de log actual"""
+        return self.current_log_file.name
 
 
-# Logger global para usar fácilmente
-logger = SimpleLogger()
+# Logger global
+logger = DailyLogger()

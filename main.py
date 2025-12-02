@@ -1,0 +1,238 @@
+"""
+Watchdog Principal - Con recuperación robusta de errores
+"""
+import os
+import sys
+import time
+import atexit
+import traceback
+from datetime import datetime
+
+from src.lock_manager import LockManager
+from src.logger import logger
+from src.schedule_manager import scheduler
+from src.watchdog import AppWatchdog
+
+
+# ============================================
+# CONFIGURACIÓN
+# ============================================
+CONFIG = {
+    "app_name": "smart-dbf_local.exe",
+    "lock_file": "smart_dbf.lock",
+    "timeout_minutes": 70,
+    "check_interval_minutes": 20,  # Cambia a 15 para producción
+    "wait_after_action_minutes": 2,
+    "start_hour": 7,
+    "end_hour": 21,
+}
+
+# Calcular segundos
+CONFIG["check_interval"] = CONFIG["check_interval_minutes"] * 60
+CONFIG["wait_after_action"] = CONFIG["wait_after_action_minutes"] * 60
+
+
+def main():
+    """Función principal - ROBUSTA contra errores"""
+    
+    try:
+        # Mostrar banner
+        logger.info("=" * 60)
+        logger.info("🛡️  WATCHDOG - Versión robusta con manejo de errores")
+        logger.info(f"📅 Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info("=" * 60)
+        
+        # Mostrar configuración
+        logger.info(f"⚙️  CONFIGURACIÓN:")
+        logger.info(f"   📱 App: {CONFIG['app_name']}")
+        logger.info(f"   🔒 Lock: {CONFIG['lock_file']}")
+        logger.info(f"   ⏱️  Timeout: {CONFIG['timeout_minutes']} min")
+        logger.info(f"   🔄 Revisión: cada {CONFIG['check_interval_minutes']} min")
+        logger.info(f"   🕐 Horario: {CONFIG['start_hour']}:00-{CONFIG['end_hour']}:00")
+        logger.info("=" * 60)
+        
+        # 1. INICIALIZAR WATCHDOG
+        app_watchdog = AppWatchdog(
+            app_name=CONFIG["app_name"],
+            lock_file=CONFIG["lock_file"],
+            timeout_minutes=CONFIG["timeout_minutes"],
+            lock_time_format="%Y-%m-%d %H:%M:%S"
+        )
+        
+        # 2. VERIFICAR QUE NO HAY OTRO WATCHDOG
+        lock_manager = LockManager()
+        
+        if not lock_manager.check_and_acquire():
+            logger.error("❌ Ya hay otro watchdog corriendo. Saliendo.")
+            logger.status("❌ ERROR: Otro watchdog activo")
+            return 1
+        
+        lock_manager.create_lock()
+        logger.info(f"🔒 Watchdog registrado (PID {os.getpid()})")
+        
+        # 3. CONFIGURAR CLEANUP (se ejecuta incluso si crashea)
+        atexit.register(lambda: lock_manager.remove_lock())
+        atexit.register(lambda: logger.info("👋 Watchdog finalizado"))
+        atexit.register(lambda: logger.status("💤 Watchdog detenido"))
+        
+        # 4. REGISTRAR HANDLER PARA SEÑALES DE CRASH
+        def handle_crash(signum=None, frame=None):
+            """Maneja crashes inesperados"""
+            logger.error("💥 CRASH DETECTADO - Limpiando...")
+            lock_manager.remove_lock()
+            logger.status("💥 Watchdog crasheó")
+            sys.exit(1)
+        
+        # En Windows no hay señales UNIX, pero podemos registrar con atexit
+        atexit.register(handle_crash)
+        
+        logger.status(f"✅ Activo | Robustez: ALTA | Revisión: {CONFIG['check_interval_minutes']}min")
+        
+    except Exception as e:
+        # ERROR EN INICIALIZACIÓN - NO PODEMOS CONTINUAR
+        logger.error(f"💥 ERROR CRÍTICO en inicialización: {e}")
+        logger.error(f"📋 Traceback: {traceback.format_exc()}")
+        logger.status(f"❌ ERROR INICIAL: {str(e)[:40]}...")
+        
+        # Registrar para diagnóstico
+        try:
+            with open("watchdog_crash_init.log", "a") as f:
+                f.write(f"[{datetime.now()}] INIT CRASH: {str(e)}\n")
+                f.write(traceback.format_exc() + "\n")
+        except:
+            pass
+        
+        return 1
+    
+    # 5. LOOP PRINCIPAL CON RECUPERACIÓN POR CICLO
+    ciclo = 0
+    ejecuciones = 0
+    reinicios = 0
+    errores_recientes = 0
+    
+    logger.info("🔁 Iniciando loop principal con recuperación...")
+    
+    while True:
+        try:
+            ciclo += 1
+            hora_actual = datetime.now().strftime('%H:%M')
+            
+            logger.info(f"🔄 Ciclo #{ciclo} - {hora_actual}")
+            
+            # Verificar si estamos en horario
+            if CONFIG["start_hour"] <= datetime.now().hour < CONFIG["end_hour"]:
+                logger.info(f"✅ En horario ({CONFIG['start_hour']}:00-{CONFIG['end_hour']}:00)")
+                
+                # Verificar estado de la app
+                estado = app_watchdog.check_app_status()
+                logger.info(f"📊 Estado: {estado}")
+                
+                if estado == "not_running":
+                    logger.info(f"🚀 Ejecutando {CONFIG['app_name']}...")
+                    logger.status(f"🚀 Ejecutando {CONFIG['app_name']}...")
+                    
+                    if app_watchdog.start_app():
+                        ejecuciones += 1
+                        logger.info(f"✅ App iniciada (total: {ejecuciones})")
+                        logger.status("✅ App en ejecución")
+                        time.sleep(CONFIG["wait_after_action"])
+                    else:
+                        logger.error("❌ Error al iniciar app")
+                        logger.status("❌ Error al iniciar")
+                        errores_recientes += 1
+                
+                elif estado == "hung":
+                    logger.warning(f"⚠️ App colgada (> {CONFIG['timeout_minutes']}min)")
+                    logger.status("⚠️ App colgada, reiniciando...")
+                    
+                    if app_watchdog.kill_app():
+                        reinicios += 1
+                        logger.info(f"♻️ App terminada (reinicios: {reinicios})")
+                        time.sleep(10)
+                        
+                        if app_watchdog.start_app():
+                            ejecuciones += 1
+                            logger.info("✅ App reiniciada")
+                            logger.status("✅ App reiniciada")
+                            time.sleep(CONFIG["wait_after_action"])
+                        else:
+                            logger.error("❌ Error al reiniciar")
+                            logger.status("❌ Error al reiniciar")
+                            errores_recientes += 1
+                    else:
+                        logger.error("❌ No se pudo recuperar app")
+                        logger.status("❌ App colgada sin recuperación")
+                        errores_recientes += 1
+                
+                elif estado == "running_ok":
+                    logger.info("👍 App ejecutándose normalmente")
+                    logger.status("👍 App OK")
+                    errores_recentes = 0  # Resetear contador si todo va bien
+            else:
+                logger.info(f"😴 Fuera de horario")
+                logger.status(f"💤 Durmiendo hasta {CONFIG['start_hour']}:00")
+            
+            # Esperar para próxima revisión
+            minutos = CONFIG["check_interval_minutes"]
+            logger.info(f"💤 Durmiendo {minutos} minutos...")
+            time.sleep(CONFIG["check_interval"])
+            
+        except KeyboardInterrupt:
+            logger.info("🛑 Detenido por usuario")
+            logger.status("🛑 Detenido por usuario")
+            break
+            
+        except Exception as e:
+            # ERROR EN CICLO - NO DETENER EL WATCHDOG
+            errores_recientes += 1
+            logger.error(f"⚠️  Error en ciclo #{ciclo}: {e}")
+            logger.error(f"📋 Traceback parcial: {traceback.format_exc()[:500]}...")
+            logger.status(f"⚠️  Error temporal, continuando...")
+            
+            # Registrar error
+            try:
+                with open("watchdog_errors.log", "a") as f:
+                    f.write(f"[{datetime.now()}] CYCLE {ciclo} ERROR: {str(e)}\n")
+                    f.write(traceback.format_exc() + "\n")
+            except:
+                pass
+            
+            # Si hay muchos errores seguidos, esperar más
+            if errores_recientes >= 3:
+                wait_time = 300  # 5 minutos
+                logger.warning(f"⚠️  Muchos errores seguidos ({errores_recientes}), esperando {wait_time//60} min...")
+                time.sleep(wait_time)
+            else:
+                # Esperar tiempo normal
+                time.sleep(CONFIG["check_interval"])
+    
+    # 6. FINALIZACIÓN NORMAL
+    logger.info("=" * 60)
+    logger.info(f"📊 RESUMEN FINAL:")
+    logger.info(f"   Ciclos completados: {ciclo}")
+    logger.info(f"   Ejecuciones de app: {ejecuciones}")
+    logger.info(f"   Reinicios por colgadas: {reinicios}")
+    logger.info(f"   Errores capturados: {errores_recientes}")
+    logger.info("=" * 60)
+    logger.info("👋 Watchdog finalizado correctamente")
+    
+    return 0
+
+
+if __name__ == "__main__":
+    # Cambiar al directorio del script
+    try:
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    except Exception as e:
+        print(f"❌ ERROR cambiando directorio: {e}")
+        sys.exit(1)
+    
+    # Ejecutar con captura de errores final
+    try:
+        exit_code = main()
+    except Exception as e:
+        print(f"💥 ERROR NO CAPTURADO: {e}")
+        print(traceback.format_exc())
+        exit_code = 1
+    
+    sys.exit(exit_code)
