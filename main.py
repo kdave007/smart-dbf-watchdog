@@ -21,7 +21,7 @@ CONFIG = {
     "app_name": "smart-dbf_local.exe",
     "lock_file": "smart_dbf.lock",
     "timeout_minutes": 70,
-    "check_interval_minutes": 20,  # Cambia a 15 para producción
+    "check_interval_minutes": 60,  # Cambia a 15 para producción
     "wait_after_action_minutes": 2,
     "start_hour": 7,
     "end_hour": 21,
@@ -30,6 +30,36 @@ CONFIG = {
 # Calcular segundos
 CONFIG["check_interval"] = CONFIG["check_interval_minutes"] * 60
 CONFIG["wait_after_action"] = CONFIG["wait_after_action_minutes"] * 60
+
+
+def interruptible_sleep(seconds):
+    """
+    Duerme en chunks de 10 segundos, verificando stop.txt cada vez.
+    Retorna True si se detectó stop.txt, False si completó el sleep normal.
+    """
+    elapsed = 0
+    chunk = 10  # Verificar cada 10 segundos
+    
+    # Obtener directorio del script/exe
+    if getattr(sys, 'frozen', False):
+        # Running as exe
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        # Running as script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    stop_file = os.path.join(script_dir, "stop.txt")
+    
+    while elapsed < seconds:
+        if os.path.exists(stop_file):
+            return True  # Señal de stop detectada
+        
+        # Dormir el menor entre: tiempo restante o chunk
+        sleep_time = min(chunk, seconds - elapsed)
+        time.sleep(sleep_time)
+        elapsed += sleep_time
+    
+    return False  # Sleep completado sin interrupción
 
 
 def main():
@@ -112,8 +142,21 @@ def main():
     
     logger.info("🔁 Iniciando loop principal con recuperación...")
     
+    # Determinar ruta del stop.txt una vez
+    if getattr(sys, 'frozen', False):
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    stop_file = os.path.join(script_dir, "stop.txt")
+    
     while True:
         try:
+            # Chequear archivo de stop para finalizar el watchdog
+            if os.path.exists(stop_file):
+                logger.info("[STOP] 🛑 stop.txt encontrado. Saliendo del watchdog...")
+                logger.status("🛑 Detenido por stop.txt")
+                break
+
             ciclo += 1
             hora_actual = datetime.now().strftime('%H:%M')
             
@@ -135,7 +178,9 @@ def main():
                         ejecuciones += 1
                         logger.info(f"✅ App iniciada (total: {ejecuciones})")
                         logger.status("✅ App en ejecución")
-                        time.sleep(CONFIG["wait_after_action"])
+                        if interruptible_sleep(CONFIG["wait_after_action"]):
+                            logger.info("[STOP] stop.txt detectado durante espera")
+                            break
                     else:
                         logger.error("❌ Error al iniciar app")
                         logger.status("❌ Error al iniciar")
@@ -148,13 +193,17 @@ def main():
                     if app_watchdog.kill_app():
                         reinicios += 1
                         logger.info(f"♻️ App terminada (reinicios: {reinicios})")
-                        time.sleep(10)
+                        if interruptible_sleep(10):
+                            logger.info("[STOP] stop.txt detectado durante espera")
+                            break
                         
                         if app_watchdog.start_app():
                             ejecuciones += 1
                             logger.info("✅ App reiniciada")
                             logger.status("✅ App reiniciada")
-                            time.sleep(CONFIG["wait_after_action"])
+                            if interruptible_sleep(CONFIG["wait_after_action"]):
+                                logger.info("[STOP] stop.txt detectado durante espera")
+                                break
                         else:
                             logger.error("❌ Error al reiniciar")
                             logger.status("❌ Error al reiniciar")
@@ -167,7 +216,7 @@ def main():
                 elif estado == "running_ok":
                     logger.info("👍 App ejecutándose normalmente")
                     logger.status("👍 App OK")
-                    errores_recentes = 0  # Resetear contador si todo va bien
+                    errores_recientes = 0  # Resetear contador si todo va bien
             else:
                 logger.info(f"😴 Fuera de horario")
                 logger.status(f"💤 Durmiendo hasta {CONFIG['start_hour']}:00")
@@ -175,7 +224,10 @@ def main():
             # Esperar para próxima revisión
             minutos = CONFIG["check_interval_minutes"]
             logger.info(f"💤 Durmiendo {minutos} minutos...")
-            time.sleep(CONFIG["check_interval"])
+            if interruptible_sleep(CONFIG["check_interval"]):
+                logger.info("[STOP] stop.txt detectado durante sleep")
+                logger.status("🛑 Detenido por stop.txt")
+                break
             
         except KeyboardInterrupt:
             logger.info("🛑 Detenido por usuario")
@@ -201,10 +253,16 @@ def main():
             if errores_recientes >= 3:
                 wait_time = 300  # 5 minutos
                 logger.warning(f"⚠️  Muchos errores seguidos ({errores_recientes}), esperando {wait_time//60} min...")
-                time.sleep(wait_time)
+                if interruptible_sleep(wait_time):
+                    logger.info("[STOP] stop.txt detectado durante espera de error")
+                    logger.status("🛑 Detenido por stop.txt")
+                    break
             else:
                 # Esperar tiempo normal
-                time.sleep(CONFIG["check_interval"])
+                if interruptible_sleep(CONFIG["check_interval"]):
+                    logger.info("[STOP] stop.txt detectado durante espera de error")
+                    logger.status("🛑 Detenido por stop.txt")
+                    break
     
     # 6. FINALIZACIÓN NORMAL
     logger.info("=" * 60)

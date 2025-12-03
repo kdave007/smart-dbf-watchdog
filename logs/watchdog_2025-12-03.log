@@ -1,0 +1,32 @@
+[LOGGER] Archivo de log creado: 2025-12-03 10:43:03
+[LOGGER] Formato: [FECHA] NIVEL - Mensaje
+============================================================
+[2025-12-03 11:40:29] INFO - ============================================================
+[2025-12-03 11:40:29] INFO - 🛡️  WATCHDOG - Versión robusta con manejo de errores
+[2025-12-03 11:40:29] INFO - 📅 Inicio: 2025-12-03 11:40:29
+[2025-12-03 11:40:29] INFO - ============================================================
+[2025-12-03 11:40:29] INFO - ⚙️  CONFIGURACIÓN:
+[2025-12-03 11:40:29] INFO -    📱 App: smart-dbf_local.exe
+[2025-12-03 11:40:29] INFO -    🔒 Lock: smart_dbf.lock
+[2025-12-03 11:40:29] INFO -    ⏱️  Timeout: 70 min
+[2025-12-03 11:40:29] INFO -    🔄 Revisión: cada 60 min
+[2025-12-03 11:40:29] INFO -    🕐 Horario: 7:00-21:00
+[2025-12-03 11:40:29] INFO - ============================================================
+[2025-12-03 11:40:29] INFO - 🛡️ Watchdog simplificado:
+[2025-12-03 11:40:29] INFO -    App: smart-dbf_local.exe
+[2025-12-03 11:40:29] INFO -    Lock file: smart_dbf.lock
+[2025-12-03 11:40:29] INFO -    Timeout: 70 min
+[2025-12-03 11:40:29] INFO -    Lógica: Solo verifica lock file, NO procesos
+[2025-12-03 11:40:29] INFO - 🔒 Watchdog registrado (PID 27644)
+[2025-12-03 11:40:29] INFO - 🔁 Iniciando loop principal con recuperación...
+[2025-12-03 11:40:29] INFO - [STOP] stop.txt encontrado. Saliendo del watchdog...
+[2025-12-03 11:40:29] INFO - ============================================================
+[2025-12-03 11:40:29] INFO - 📊 RESUMEN FINAL:
+[2025-12-03 11:40:29] INFO -    Ciclos completados: 0
+[2025-12-03 11:40:29] INFO -    Ejecuciones de app: 0
+[2025-12-03 11:40:29] INFO -    Reinicios por colgadas: 0
+[2025-12-03 11:40:29] INFO -    Errores capturados: 0
+[2025-12-03 11:40:29] INFO - ============================================================
+[2025-12-03 11:40:29] INFO - 👋 Watchdog finalizado correctamente
+[2025-12-03 11:40:29] ERROR - 💥 CRASH DETECTADO - Limpiando...
+[2025-12-03 11:40:29] INFO - 👋 Watchdog finalizado
