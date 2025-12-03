@@ -21,7 +21,7 @@ CONFIG = {
     "app_name": "smart-dbf_local.exe",
     "lock_file": "smart_dbf.lock",
     "timeout_minutes": 70,
-    "check_interval_minutes": 60,  # Cambia a 15 para producción
+    "check_interval_minutes": 3,  # Cambia a 15 para producción
     "wait_after_action_minutes": 2,
     "start_hour": 7,
     "end_hour": 21,
@@ -89,7 +89,7 @@ def main():
             lock_time_format="%Y-%m-%d %H:%M:%S"
         )
         
-        # 2. VERIFICAR QUE NO HAY OTRO WATCHDOG
+        # 2. VERIFICAR QUE NO HAY OTRO WATCHDOG Y ADQUIRIR LOCK
         lock_manager = LockManager()
         
         if not lock_manager.check_and_acquire():
@@ -97,7 +97,7 @@ def main():
             logger.status("❌ ERROR: Otro watchdog activo")
             return 1
         
-        lock_manager.create_lock()
+        # Lock ya fue creado por check_and_acquire()
         logger.info(f"🔒 Watchdog registrado (PID {os.getpid()})")
         
         # 3. CONFIGURAR CLEANUP (se ejecuta incluso si crashea)

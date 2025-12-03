@@ -1,0 +1,158 @@
+2025-12-03 12:19:17,244 - INFO - Logs saved in : c:\Users\campo\Documents\projects\smart-dbf-watchdog\logs\SDBF_03_12_2025.log
+2025-12-03 12:19:17,245 - INFO - Lock file created: c:\Users\campo\Documents\projects\smart-dbf-watchdog\smart_dbf.lock
+2025-12-03 12:19:17,245 - INFO - ********************************************************************************
+2025-12-03 12:19:17,245 - INFO - *                                                                              *
+2025-12-03 12:19:17,245 - INFO - *                         STARTING Smart DBF v2.14 DEBUG VERSION                          *
+2025-12-03 12:19:17,245 - INFO - *                                                                              *
+2025-12-03 12:19:17,245 - INFO - ********************************************************************************
+2025-12-03 12:19:17,245 - INFO - ConfigManager initialized - Source: ENV, Venue: venue.json
+2025-12-03 12:19:17,245 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:17,245 - INFO - Loaded venue configuration from venue.json
+2025-12-03 12:19:17,245 - INFO - venue.json data_source field value: 'C:\Users\campo\Documents\projects\data_sucursales\atenas'
+2025-12-03 12:19:17,245 - INFO - Base path for auto-detection: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:17,245 - INFO - ✅ Using CONFIGURED data_source from venue.json: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:19:17,246 - INFO - Loaded venue config: plaza=XALAP, sucursal=DUMMY
+2025-12-03 12:19:17,246 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:17,246 - INFO - Loaded 14 configuration values from .env
+2025-12-03 12:19:17,246 - INFO - Total config keys after .env merge: 21
+2025-12-03 12:19:17,246 - INFO - Final config has 21 keys
+2025-12-03 12:19:17,246 - INFO - Random startup delay: 176.90s (load distribution)
+2025-12-03 12:19:22,247 - INFO - DateCalculator using config source: ENV
+2025-12-03 12:19:22,247 - INFO - Using current date as END_DATE (END_DATE=0)
+2025-12-03 12:19:22,251 - INFO - Using custom date range: 2025-11-18 to 0
+2025-12-03 12:19:22,251 - INFO -  DateCalculator loaded date range: {'from': '2025-11-18', 'to': '2025-12-03'}
+2025-12-03 12:19:22,251 - INFO - 📁 Data source configured: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:19:22,252 - INFO -    Exists: True
+2025-12-03 12:19:22,252 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:22,252 - INFO - Loaded venue configuration from venue.json
+2025-12-03 12:19:22,252 - INFO - venue.json data_source field value: 'C:\Users\campo\Documents\projects\data_sucursales\atenas'
+2025-12-03 12:19:22,252 - INFO - Base path for auto-detection: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:22,252 - INFO - ✅ Using CONFIGURED data_source from venue.json: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:19:22,252 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:22,253 - INFO - DLL file found at: c:\Users\campo\Documents\projects\smart-dbf-watchdog\Advantage.Data.Provider.dll
+2025-12-03 12:19:22,253 - INFO - DBFData initialized with dll_path: c:\Users\campo\Documents\projects\smart-dbf-watchdog\Advantage.Data.Provider.dll
+2025-12-03 12:19:22,253 - INFO - Mapping file path: C:\Users\campo\AppData\Local\Temp\_MEI333442\src\utils\mappings.json
+2025-12-03 12:19:22,253 - INFO - Filters file path: C:\Users\campo\AppData\Local\Temp\_MEI333442\src\utils\rules.json
+2025-12-03 12:19:22,253 - INFO - Getting data for table: XCORTE using strategy: simple (attempt 1/2)
+2025-12-03 12:19:22,609 - INFO - DBFConnection initialized with data source: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:19:22,610 - INFO - Initializing DBFReader with data source: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:19:22,610 - INFO - DBFConnection initialized with data source: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:19:22,750 - INFO -                 /////////////////////////////////////////////////////////////////////////
+2025-12-03 12:19:22,750 - INFO -                                  [ XCORTE :: XALAP_DUMMY ]
+2025-12-03 12:19:22,750 - INFO -                 /////////////////////////////////////////////////////////////////////////
+2025-12-03 12:19:22,750 - INFO - SQL enabled: False
+2025-12-03 12:19:22,750 - INFO - Debug mode: True
+2025-12-03 12:19:22,750 - INFO - Date range from .env: {'from': '2025-11-18', 'to': '2025-12-03'}
+2025-12-03 12:19:22,750 - INFO - total dbf_records fetched for XCORTE : 1
+2025-12-03 12:19:22,750 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:22,754 - INFO -       Table status operations XCORTE: 
+2025-12-03 12:19:22,754 - INFO - ------- New: 0
+2025-12-03 12:19:22,754 - INFO - ------- update: 0
+2025-12-03 12:19:22,754 - INFO - ------- Unchanged: 1
+2025-12-03 12:19:22,754 - INFO - ------- Deleted: 0
+2025-12-03 12:19:22,755 - INFO - [Operation] Using identifier_field 'FECHA' for table XCORTE
+2025-12-03 12:19:22,755 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:22,757 - INFO -  Unchanged records (1) - no action needed
+2025-12-03 12:19:22,757 - INFO -  Table XCORTE processing completed
+2025-12-03 12:19:22,757 - INFO - 6s Delay ... 
+2025-12-03 12:19:28,757 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:28,761 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:19:28,765 - INFO -  
+2025-12-03 12:19:28,765 - INFO - ================================================================================
+2025-12-03 12:19:28,765 - INFO - FINAL PROCESSING RESULTS SUMMARY - ALL TABLES
+2025-12-03 12:19:28,765 - INFO - ================================================================================
+2025-12-03 12:19:28,765 - INFO - 
+2025-12-03 12:19:28,765 - INFO -          DATE RANGE FROM 2025-11-18 TO 2025-12-03
+2025-12-03 12:19:28,765 - INFO - 
+2025-12-03 12:19:28,765 - INFO - /// TABLE: XCORTE ///
+2025-12-03 12:19:28,765 - INFO - 
+2025-12-03 12:19:28,765 - INFO -   UPLOAD PROCESS:
+2025-12-03 12:19:28,765 - INFO -     UNCHANGED: 1 records
+2025-12-03 12:19:28,765 - INFO -  
+2025-12-03 12:19:28,765 - INFO - ================================================================================
+2025-12-03 12:19:28,765 - INFO -  ALL TABLES PROCESSED 
+2025-12-03 12:19:28,765 - INFO - ================================================================================
+2025-12-03 12:19:28,765 - INFO -  
+2025-12-03 12:19:28,765 - INFO - BENCHMARK SUMMARY - TABLE PROCESSING TIMES
+2025-12-03 12:19:28,765 - INFO -   - XCORTE: 0.51s (upload + status)
+2025-12-03 12:19:28,765 - INFO - TOTAL EXECUTION TIME: 6.51s (including delay)
+2025-12-03 12:19:28,766 - INFO - Lock file removed
+2025-12-03 12:58:39,256 - INFO - Logs saved in : c:\Users\campo\Documents\projects\smart-dbf-watchdog\logs\SDBF_03_12_2025.log
+2025-12-03 12:58:39,257 - INFO - Lock file created: c:\Users\campo\Documents\projects\smart-dbf-watchdog\smart_dbf.lock
+2025-12-03 12:58:39,257 - INFO - ********************************************************************************
+2025-12-03 12:58:39,257 - INFO - *                                                                              *
+2025-12-03 12:58:39,257 - INFO - *                         STARTING Smart DBF v2.14 DEBUG VERSION                          *
+2025-12-03 12:58:39,257 - INFO - *                                                                              *
+2025-12-03 12:58:39,257 - INFO - ********************************************************************************
+2025-12-03 12:58:39,257 - INFO - ConfigManager initialized - Source: ENV, Venue: venue.json
+2025-12-03 12:58:39,257 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:39,258 - INFO - Loaded venue configuration from venue.json
+2025-12-03 12:58:39,258 - INFO - venue.json data_source field value: 'C:\Users\campo\Documents\projects\data_sucursales\atenas'
+2025-12-03 12:58:39,258 - INFO - Base path for auto-detection: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:39,258 - INFO - ✅ Using CONFIGURED data_source from venue.json: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:58:39,258 - INFO - Loaded venue config: plaza=XALAP, sucursal=DUMMY
+2025-12-03 12:58:39,258 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:39,259 - INFO - Loaded 14 configuration values from .env
+2025-12-03 12:58:39,259 - INFO - Total config keys after .env merge: 21
+2025-12-03 12:58:39,259 - INFO - Final config has 21 keys
+2025-12-03 12:58:39,259 - INFO - Random startup delay: 71.37s (load distribution)
+2025-12-03 12:58:44,259 - INFO - DateCalculator using config source: ENV
+2025-12-03 12:58:44,259 - INFO - Using current date as END_DATE (END_DATE=0)
+2025-12-03 12:58:44,261 - INFO - Using custom date range: 2025-11-18 to 0
+2025-12-03 12:58:44,261 - INFO -  DateCalculator loaded date range: {'from': '2025-11-18', 'to': '2025-12-03'}
+2025-12-03 12:58:44,261 - INFO - 📁 Data source configured: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:58:44,261 - INFO -    Exists: True
+2025-12-03 12:58:44,261 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:44,262 - INFO - Loaded venue configuration from venue.json
+2025-12-03 12:58:44,262 - INFO - venue.json data_source field value: 'C:\Users\campo\Documents\projects\data_sucursales\atenas'
+2025-12-03 12:58:44,262 - INFO - Base path for auto-detection: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:44,262 - INFO - ✅ Using CONFIGURED data_source from venue.json: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:58:44,262 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:44,262 - INFO - DLL file found at: c:\Users\campo\Documents\projects\smart-dbf-watchdog\Advantage.Data.Provider.dll
+2025-12-03 12:58:44,262 - INFO - DBFData initialized with dll_path: c:\Users\campo\Documents\projects\smart-dbf-watchdog\Advantage.Data.Provider.dll
+2025-12-03 12:58:44,262 - INFO - Mapping file path: C:\Users\campo\AppData\Local\Temp\_MEI86242\src\utils\mappings.json
+2025-12-03 12:58:44,262 - INFO - Filters file path: C:\Users\campo\AppData\Local\Temp\_MEI86242\src\utils\rules.json
+2025-12-03 12:58:44,262 - INFO - Getting data for table: XCORTE using strategy: simple (attempt 1/2)
+2025-12-03 12:58:44,553 - INFO - DBFConnection initialized with data source: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:58:44,553 - INFO - Initializing DBFReader with data source: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:58:44,553 - INFO - DBFConnection initialized with data source: C:\Users\campo\Documents\projects\data_sucursales\atenas
+2025-12-03 12:58:44,698 - INFO -                 /////////////////////////////////////////////////////////////////////////
+2025-12-03 12:58:44,699 - INFO -                                  [ XCORTE :: XALAP_DUMMY ]
+2025-12-03 12:58:44,699 - INFO -                 /////////////////////////////////////////////////////////////////////////
+2025-12-03 12:58:44,699 - INFO - SQL enabled: False
+2025-12-03 12:58:44,699 - INFO - Debug mode: True
+2025-12-03 12:58:44,699 - INFO - Date range from .env: {'from': '2025-11-18', 'to': '2025-12-03'}
+2025-12-03 12:58:44,699 - INFO - total dbf_records fetched for XCORTE : 1
+2025-12-03 12:58:44,699 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:44,703 - INFO -       Table status operations XCORTE: 
+2025-12-03 12:58:44,703 - INFO - ------- New: 0
+2025-12-03 12:58:44,703 - INFO - ------- update: 0
+2025-12-03 12:58:44,703 - INFO - ------- Unchanged: 1
+2025-12-03 12:58:44,703 - INFO - ------- Deleted: 0
+2025-12-03 12:58:44,705 - INFO - [Operation] Using identifier_field 'FECHA' for table XCORTE
+2025-12-03 12:58:44,705 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:44,707 - INFO -  Unchanged records (1) - no action needed
+2025-12-03 12:58:44,707 - INFO -  Table XCORTE processing completed
+2025-12-03 12:58:44,707 - INFO - 6s Delay ... 
+2025-12-03 12:58:50,707 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:50,712 - INFO - Running as EXE - Base path: c:\Users\campo\Documents\projects\smart-dbf-watchdog
+2025-12-03 12:58:50,715 - INFO -  
+2025-12-03 12:58:50,715 - INFO - ================================================================================
+2025-12-03 12:58:50,715 - INFO - FINAL PROCESSING RESULTS SUMMARY - ALL TABLES
+2025-12-03 12:58:50,715 - INFO - ================================================================================
+2025-12-03 12:58:50,715 - INFO - 
+2025-12-03 12:58:50,716 - INFO -          DATE RANGE FROM 2025-11-18 TO 2025-12-03
+2025-12-03 12:58:50,716 - INFO - 
+2025-12-03 12:58:50,716 - INFO - /// TABLE: XCORTE ///
+2025-12-03 12:58:50,716 - INFO - 
+2025-12-03 12:58:50,716 - INFO -   UPLOAD PROCESS:
+2025-12-03 12:58:50,716 - INFO -     UNCHANGED: 1 records
+2025-12-03 12:58:50,716 - INFO -  
+2025-12-03 12:58:50,716 - INFO - ================================================================================
+2025-12-03 12:58:50,716 - INFO -  ALL TABLES PROCESSED 
+2025-12-03 12:58:50,716 - INFO - ================================================================================
+2025-12-03 12:58:50,716 - INFO -  
+2025-12-03 12:58:50,716 - INFO - BENCHMARK SUMMARY - TABLE PROCESSING TIMES
+2025-12-03 12:58:50,716 - INFO -   - XCORTE: 0.45s (upload + status)
+2025-12-03 12:58:50,716 - INFO - TOTAL EXECUTION TIME: 6.46s (including delay)
+2025-12-03 12:58:50,716 - INFO - Lock file removed

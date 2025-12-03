@@ -1,32 +1,112 @@
-[LOGGER] Archivo de log creado: 2025-12-03 10:43:03
+[LOGGER] Archivo de log creado: 2025-12-03 12:19:03
 [LOGGER] Formato: [FECHA] NIVEL - Mensaje
 ============================================================
-[2025-12-03 11:40:29] INFO - ============================================================
-[2025-12-03 11:40:29] INFO - 🛡️  WATCHDOG - Versión robusta con manejo de errores
-[2025-12-03 11:40:29] INFO - 📅 Inicio: 2025-12-03 11:40:29
-[2025-12-03 11:40:29] INFO - ============================================================
-[2025-12-03 11:40:29] INFO - ⚙️  CONFIGURACIÓN:
-[2025-12-03 11:40:29] INFO -    📱 App: smart-dbf_local.exe
-[2025-12-03 11:40:29] INFO -    🔒 Lock: smart_dbf.lock
-[2025-12-03 11:40:29] INFO -    ⏱️  Timeout: 70 min
-[2025-12-03 11:40:29] INFO -    🔄 Revisión: cada 60 min
-[2025-12-03 11:40:29] INFO -    🕐 Horario: 7:00-21:00
-[2025-12-03 11:40:29] INFO - ============================================================
-[2025-12-03 11:40:29] INFO - 🛡️ Watchdog simplificado:
-[2025-12-03 11:40:29] INFO -    App: smart-dbf_local.exe
-[2025-12-03 11:40:29] INFO -    Lock file: smart_dbf.lock
-[2025-12-03 11:40:29] INFO -    Timeout: 70 min
-[2025-12-03 11:40:29] INFO -    Lógica: Solo verifica lock file, NO procesos
-[2025-12-03 11:40:29] INFO - 🔒 Watchdog registrado (PID 27644)
-[2025-12-03 11:40:29] INFO - 🔁 Iniciando loop principal con recuperación...
-[2025-12-03 11:40:29] INFO - [STOP] stop.txt encontrado. Saliendo del watchdog...
-[2025-12-03 11:40:29] INFO - ============================================================
-[2025-12-03 11:40:29] INFO - 📊 RESUMEN FINAL:
-[2025-12-03 11:40:29] INFO -    Ciclos completados: 0
-[2025-12-03 11:40:29] INFO -    Ejecuciones de app: 0
-[2025-12-03 11:40:29] INFO -    Reinicios por colgadas: 0
-[2025-12-03 11:40:29] INFO -    Errores capturados: 0
-[2025-12-03 11:40:29] INFO - ============================================================
-[2025-12-03 11:40:29] INFO - 👋 Watchdog finalizado correctamente
-[2025-12-03 11:40:29] ERROR - 💥 CRASH DETECTADO - Limpiando...
-[2025-12-03 11:40:29] INFO - 👋 Watchdog finalizado
+[2025-12-03 12:19:03] INFO - ============================================================
+[2025-12-03 12:19:03] INFO - 🛡️  WATCHDOG - Versión robusta con manejo de errores
+[2025-12-03 12:19:03] INFO - 📅 Inicio: 2025-12-03 12:19:03
+[2025-12-03 12:19:03] INFO - ============================================================
+[2025-12-03 12:19:03] INFO - ⚙️  CONFIGURACIÓN:
+[2025-12-03 12:19:03] INFO -    📱 App: smart-dbf_local.exe
+[2025-12-03 12:19:03] INFO -    🔒 Lock: smart_dbf.lock
+[2025-12-03 12:19:03] INFO -    ⏱️  Timeout: 70 min
+[2025-12-03 12:19:03] INFO -    🔄 Revisión: cada 60 min
+[2025-12-03 12:19:03] INFO -    🕐 Horario: 7:00-21:00
+[2025-12-03 12:19:03] INFO - ============================================================
+[2025-12-03 12:19:03] INFO - 🛡️ Watchdog simplificado:
+[2025-12-03 12:19:03] INFO -    App: smart-dbf_local.exe
+[2025-12-03 12:19:03] INFO -    Lock file: smart_dbf.lock
+[2025-12-03 12:19:03] INFO -    Timeout: 70 min
+[2025-12-03 12:19:03] INFO -    Lógica: Solo verifica lock file, NO procesos
+[2025-12-03 12:19:03] INFO - 🔒 Watchdog registrado (PID 24920)
+[2025-12-03 12:19:03] INFO - 🔁 Iniciando loop principal con recuperación...
+[2025-12-03 12:19:03] INFO - [STOP] 🛑 stop.txt encontrado. Saliendo del watchdog...
+[2025-12-03 12:19:03] INFO - ============================================================
+[2025-12-03 12:19:03] INFO - 📊 RESUMEN FINAL:
+[2025-12-03 12:19:03] INFO -    Ciclos completados: 0
+[2025-12-03 12:19:03] INFO -    Ejecuciones de app: 0
+[2025-12-03 12:19:03] INFO -    Reinicios por colgadas: 0
+[2025-12-03 12:19:03] INFO -    Errores capturados: 0
+[2025-12-03 12:19:03] INFO - ============================================================
+[2025-12-03 12:19:03] INFO - 👋 Watchdog finalizado correctamente
+[2025-12-03 12:19:03] ERROR - 💥 CRASH DETECTADO - Limpiando...
+[2025-12-03 12:19:03] INFO - 👋 Watchdog finalizado
+[2025-12-03 12:19:15] INFO - ============================================================
+[2025-12-03 12:19:15] INFO - 🛡️  WATCHDOG - Versión robusta con manejo de errores
+[2025-12-03 12:19:15] INFO - 📅 Inicio: 2025-12-03 12:19:15
+[2025-12-03 12:19:15] INFO - ============================================================
+[2025-12-03 12:19:15] INFO - ⚙️  CONFIGURACIÓN:
+[2025-12-03 12:19:15] INFO -    📱 App: smart-dbf_local.exe
+[2025-12-03 12:19:15] INFO -    🔒 Lock: smart_dbf.lock
+[2025-12-03 12:19:15] INFO -    ⏱️  Timeout: 70 min
+[2025-12-03 12:19:15] INFO -    🔄 Revisión: cada 60 min
+[2025-12-03 12:19:15] INFO -    🕐 Horario: 7:00-21:00
+[2025-12-03 12:19:15] INFO - ============================================================
+[2025-12-03 12:19:15] INFO - 🛡️ Watchdog simplificado:
+[2025-12-03 12:19:15] INFO -    App: smart-dbf_local.exe
+[2025-12-03 12:19:15] INFO -    Lock file: smart_dbf.lock
+[2025-12-03 12:19:15] INFO -    Timeout: 70 min
+[2025-12-03 12:19:15] INFO -    Lógica: Solo verifica lock file, NO procesos
+[2025-12-03 12:19:15] INFO - 🔒 Watchdog registrado (PID 25440)
+[2025-12-03 12:19:15] INFO - 🔁 Iniciando loop principal con recuperación...
+[2025-12-03 12:19:15] INFO - 🔄 Ciclo #1 - 12:19
+[2025-12-03 12:19:15] INFO - ✅ En horario (7:00-21:00)
+[2025-12-03 12:19:15] INFO - 🔍 Verificando estado (solo por lock file)...
+[2025-12-03 12:19:15] INFO - 📭 NO hay lock file → 'not_running'
+[2025-12-03 12:19:15] INFO - 📊 Estado: not_running
+[2025-12-03 12:19:15] INFO - 🚀 Ejecutando smart-dbf_local.exe...
+[2025-12-03 12:19:15] INFO - 🚀 Ejecutando smart-dbf_local.exe...
+[2025-12-03 12:19:15] INFO - ✅ smart-dbf_local.exe iniciada
+[2025-12-03 12:19:15] INFO - ⏳ Esperando creación de lock file...
+[2025-12-03 12:19:25] INFO - ✅ Lock file creado: smart_dbf.lock
+[2025-12-03 12:19:25] INFO - ✅ App iniciada (total: 1)
+[2025-12-03 12:19:27] INFO - 🛑 Detenido por usuario
+[2025-12-03 12:19:27] INFO - ============================================================
+[2025-12-03 12:19:27] INFO - 📊 RESUMEN FINAL:
+[2025-12-03 12:19:27] INFO -    Ciclos completados: 1
+[2025-12-03 12:19:27] INFO -    Ejecuciones de app: 1
+[2025-12-03 12:19:27] INFO -    Reinicios por colgadas: 0
+[2025-12-03 12:19:27] INFO -    Errores capturados: 0
+[2025-12-03 12:19:27] INFO - ============================================================
+[2025-12-03 12:19:27] INFO - 👋 Watchdog finalizado correctamente
+[2025-12-03 12:19:27] ERROR - 💥 CRASH DETECTADO - Limpiando...
+[2025-12-03 12:19:27] INFO - 👋 Watchdog finalizado
+[2025-12-03 12:58:37] INFO - ============================================================
+[2025-12-03 12:58:37] INFO - 🛡️  WATCHDOG - Versión robusta con manejo de errores
+[2025-12-03 12:58:37] INFO - 📅 Inicio: 2025-12-03 12:58:37
+[2025-12-03 12:58:37] INFO - ============================================================
+[2025-12-03 12:58:37] INFO - ⚙️  CONFIGURACIÓN:
+[2025-12-03 12:58:37] INFO -    📱 App: smart-dbf_local.exe
+[2025-12-03 12:58:37] INFO -    🔒 Lock: smart_dbf.lock
+[2025-12-03 12:58:37] INFO -    ⏱️  Timeout: 70 min
+[2025-12-03 12:58:37] INFO -    🔄 Revisión: cada 3 min
+[2025-12-03 12:58:37] INFO -    🕐 Horario: 7:00-21:00
+[2025-12-03 12:58:37] INFO - ============================================================
+[2025-12-03 12:58:37] INFO - 🛡️ Watchdog simplificado:
+[2025-12-03 12:58:37] INFO -    App: smart-dbf_local.exe
+[2025-12-03 12:58:37] INFO -    Lock file: smart_dbf.lock
+[2025-12-03 12:58:37] INFO -    Timeout: 70 min
+[2025-12-03 12:58:37] INFO -    Lógica: Solo verifica lock file, NO procesos
+[2025-12-03 12:58:37] INFO - 🔒 Watchdog registrado (PID 2800)
+[2025-12-03 12:58:37] INFO - 🔁 Iniciando loop principal con recuperación...
+[2025-12-03 12:58:37] INFO - 🔄 Ciclo #1 - 12:58
+[2025-12-03 12:58:37] INFO - ✅ En horario (7:00-21:00)
+[2025-12-03 12:58:37] INFO - 🔍 Verificando estado (solo por lock file)...
+[2025-12-03 12:58:37] INFO - 📭 NO hay lock file → 'not_running'
+[2025-12-03 12:58:37] INFO - 📊 Estado: not_running
+[2025-12-03 12:58:37] INFO - 🚀 Ejecutando smart-dbf_local.exe...
+[2025-12-03 12:58:37] INFO - 🚀 Ejecutando smart-dbf_local.exe...
+[2025-12-03 12:58:37] INFO - ✅ smart-dbf_local.exe iniciada
+[2025-12-03 12:58:37] INFO - ⏳ Esperando creación de lock file...
+[2025-12-03 12:58:47] INFO - ✅ Lock file creado: smart_dbf.lock
+[2025-12-03 12:58:47] INFO - ✅ App iniciada (total: 1)
+[2025-12-03 12:58:53] INFO - 🛑 Detenido por usuario
+[2025-12-03 12:58:53] INFO - ============================================================
+[2025-12-03 12:58:53] INFO - 📊 RESUMEN FINAL:
+[2025-12-03 12:58:53] INFO -    Ciclos completados: 1
+[2025-12-03 12:58:53] INFO -    Ejecuciones de app: 1
+[2025-12-03 12:58:53] INFO -    Reinicios por colgadas: 0
+[2025-12-03 12:58:53] INFO -    Errores capturados: 0
+[2025-12-03 12:58:53] INFO - ============================================================
+[2025-12-03 12:58:53] INFO - 👋 Watchdog finalizado correctamente
+[2025-12-03 12:58:53] ERROR - 💥 CRASH DETECTADO - Limpiando...
+[2025-12-03 12:58:53] INFO - 👋 Watchdog finalizado
