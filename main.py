@@ -18,10 +18,11 @@ from src.watchdog import AppWatchdog
 # CONFIGURACIÓN
 # ============================================
 CONFIG = {
-    "app_name": "smart-dbf_local.exe",
+    #"app_name": "smart-dbf_local.exe",
+     "app_name": "smart-dbf_v2.1_32b.exe",
     "lock_file": "smart_dbf.lock",
     "timeout_minutes": 70,
-    "check_interval_minutes": 3,  # Cambia a 15 para producción
+    "check_interval_minutes": 15,  # Cambia a 15 para producción
     "wait_after_action_minutes": 2,
     "start_hour": 7,
     "end_hour": 21,
@@ -70,6 +71,10 @@ def main():
         logger.info("=" * 60)
         logger.info("🛡️  WATCHDOG - Versión robusta con manejo de errores")
         logger.info(f"📅 Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"📌 CWD: {os.getcwd()}")
+        logger.info(f"📌 Frozen: {getattr(sys, 'frozen', False)}")
+        logger.info(f"📌 sys.executable: {sys.executable}")
+        logger.info(f"📌 __file__: {__file__}")
         logger.info("=" * 60)
         
         # Mostrar configuración
@@ -91,6 +96,8 @@ def main():
         
         # 2. VERIFICAR QUE NO HAY OTRO WATCHDOG Y ADQUIRIR LOCK
         lock_manager = LockManager()
+
+        logger.info(f"🔒 Watchdog lock file: {lock_manager.lock_path}")
         
         if not lock_manager.check_and_acquire():
             logger.error("❌ Ya hay otro watchdog corriendo. Saliendo.")
@@ -140,6 +147,10 @@ def main():
     reinicios = 0
     errores_recientes = 0
     
+    # Refrescar watchdog.lock antes de que expire (LOCK_TIMEOUT_MINUTES=5)
+    last_lock_refresh = datetime.now()
+    lock_refresh_interval_seconds = 10  # Refrescar cada 10 segundos
+    
     logger.info("🔁 Iniciando loop principal con recuperación...")
     
     # Determinar ruta del stop.txt una vez
@@ -151,6 +162,12 @@ def main():
     
     while True:
         try:
+            # Mantener vivo el watchdog.lock para evitar que otro scheduler lo tome como huérfano
+            now = datetime.now()
+            if (now - last_lock_refresh).total_seconds() >= lock_refresh_interval_seconds:
+                lock_manager.refresh_lock()
+                last_lock_refresh = now
+
             # Chequear archivo de stop para finalizar el watchdog
             if os.path.exists(stop_file):
                 logger.info("[STOP] 🛑 stop.txt encontrado. Saliendo del watchdog...")
@@ -234,6 +251,18 @@ def main():
             logger.status("🛑 Detenido por usuario")
             break
             
+        except OSError as e:
+            # ERROR DE SISTEMA OPERATIVO (incluyendo WinError 233 - broken pipe)
+            if hasattr(e, 'winerror') and e.winerror == 233:
+                logger.warning(f"⚠️  Broken pipe detectado en ciclo #{ciclo} (proceso terminado inesperadamente)")
+                logger.info("🔄 Continuando con el siguiente ciclo...")
+                errores_recientes = 0  # No contar como error grave
+            else:
+                errores_recientes += 1
+                logger.error(f"⚠️  Error OS en ciclo #{ciclo}: {e}")
+                logger.error(f"📋 Traceback parcial: {traceback.format_exc()[:500]}...")
+                logger.status(f"⚠️  Error temporal, continuando...")
+            
         except Exception as e:
             # ERROR EN CICLO - NO DETENER EL WATCHDOG
             errores_recientes += 1
@@ -280,7 +309,10 @@ def main():
 if __name__ == "__main__":
     # Cambiar al directorio del script
     try:
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        if getattr(sys, 'frozen', False):
+            os.chdir(os.path.dirname(sys.executable))
+        else:
+            os.chdir(os.path.dirname(os.path.abspath(__file__)))
     except Exception as e:
         print(f"❌ ERROR cambiando directorio: {e}")
         sys.exit(1)

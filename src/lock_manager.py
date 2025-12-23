@@ -6,6 +6,7 @@ Usa el mismo patrón que smart_dbf.lock para consistencia
 import os
 import sys
 import json
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -27,6 +28,7 @@ class LockManager:
         
         self.lock_path = script_dir / "watchdog.lock"
         self.owns_lock = False
+        self._last_refresh = None
     
     def check_and_acquire(self) -> bool:
         """
@@ -59,9 +61,13 @@ class LockManager:
                     print(f"[LOCK] Otro watchdog activo (PID {lock_pid}, hace {minutes_old:.1f} min)")
                     return False
                 else:
-                    # Lock viejo (> 5 min) → proceso anterior probablemente crasheó
-                    print(f"[LOCK] Lock huérfano detectado ({minutes_old:.1f} min), removiendo...")
-                    self._remove_orphaned_lock()
+                    # Lock viejo (> 5 min) → verificar si el proceso realmente existe
+                    if self._is_process_running(lock_pid):
+                        print(f"[LOCK] Lock viejo ({minutes_old:.1f} min) pero proceso {lock_pid} AÚN VIVO → rechazando")
+                        return False
+                    else:
+                        print(f"[LOCK] Lock huérfano detectado ({minutes_old:.1f} min, PID {lock_pid} muerto), removiendo...")
+                        self._remove_orphaned_lock()
                     
             except Exception as e:
                 # Lock corrupto o ilegible
@@ -81,6 +87,7 @@ class LockManager:
                 json.dump(lock_data, f, indent=2)
             
             self.owns_lock = True
+            self._last_refresh = datetime.now()
             print(f"[LOCK] Lock creado (PID {os.getpid()})")
             return True
             
@@ -92,6 +99,32 @@ class LockManager:
             print(f"[LOCK] Error creando lock: {e}")
             return False
     
+    def _is_process_running(self, pid: int) -> bool:
+        """Verifica si un proceso con el PID dado está corriendo usando tasklist de Windows."""
+        try:
+            # Usar tasklist para verificar si el PID existe
+            result = subprocess.run(
+                ['tasklist', '/FI', f'PID eq {pid}', '/NH'],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                timeout=5
+            )
+            
+            # Si el PID existe, tasklist lo mostrará en la salida
+            # Si no existe, dirá "INFO: No tasks are running..."
+            output = result.stdout.lower()
+            
+            # Verificar que el proceso existe Y que sea watchdog
+            if str(pid) in output and 'watchdog' in output:
+                return True
+            
+            return False
+            
+        except Exception:
+            # Si no podemos verificar, asumir que está corriendo (conservador)
+            return True
+    
     def create_lock(self):
         """
         DEPRECATED: Usar check_and_acquire() que es atómico.
@@ -99,6 +132,27 @@ class LockManager:
         """
         # Ya no se usa, check_and_acquire() crea el lock
         pass
+    
+    def refresh_lock(self) -> bool:
+        """Actualiza el timestamp del lock para indicar que seguimos vivos."""
+        if not self.owns_lock:
+            return False
+        if not self.lock_path.exists():
+            return False
+
+        try:
+            lock_data = {
+                "timestamp": datetime.now().strftime(self.TIMESTAMP_FORMAT),
+                "pid": os.getpid(),
+                "type": "watchdog"
+            }
+            with open(self.lock_path, 'w') as f:
+                json.dump(lock_data, f, indent=2)
+
+            self._last_refresh = datetime.now()
+            return True
+        except Exception:
+            return False
     
     def _remove_orphaned_lock(self):
         """Remueve lock file huérfano (de proceso anterior que crasheó)"""
@@ -115,6 +169,7 @@ class LockManager:
             try:
                 self.lock_path.unlink()
                 self.owns_lock = False
+                self._last_refresh = None
                 print("[LOCK] Lock removido (salida normal)")
             except Exception as e:
                 print(f"[LOCK] Error removiendo nuestro lock: {e}")

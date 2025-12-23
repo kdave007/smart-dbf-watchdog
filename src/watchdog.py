@@ -2,6 +2,7 @@
 Watchdog SIMPLIFICADO - Solo verifica lock file
 """
 import os
+import sys
 import json
 import time
 import subprocess
@@ -30,6 +31,18 @@ class AppWatchdog:
         self.timeout_minutes = timeout_minutes
         self.lock_time_format = lock_time_format
         
+        # Determinar directorio base (donde están los exes)
+        if getattr(sys, 'frozen', False):
+            # Running as exe
+            self.base_dir = Path(sys.executable).parent
+        else:
+            # Running as script - usar project root
+            self.base_dir = Path(__file__).parent.parent
+
+        # Si lock_file es relativo, asumir que vive junto al watchdog/app (base_dir)
+        if not self.lock_file.is_absolute():
+            self.lock_file = (self.base_dir / self.lock_file).resolve()
+        
         logger.info(f"🛡️ Watchdog simplificado:")
         logger.info(f"   App: {self.app_name}")
         logger.info(f"   Lock file: {self.lock_file}")
@@ -49,6 +62,12 @@ class AppWatchdog:
             logger.info(f"📖 Lock file leído: timestamp={data.get('timestamp')}, pid={data.get('pid')}")
             return data
             
+        except OSError as e:
+            if e.winerror == 233:
+                logger.warning(f"⚠️  Broken pipe al leer lock file (proceso terminado inesperadamente)")
+                return None
+            logger.error(f"❌ Error OS leyendo lock file: {e}")
+            return None
         except Exception as e:
             logger.error(f"❌ Error leyendo lock file: {e}")
             return None
@@ -112,24 +131,54 @@ class AppWatchdog:
         try:
             logger.info(f"🚀 Ejecutando {self.app_name}...")
             
-            subprocess.Popen(
-                [self.app_name],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NO_WINDOW
-            )
+            # Ambos exes están en el mismo directorio (self.base_dir)
+            app_path = Path(self.app_name)
+            
+            if app_path.is_absolute():
+                # Ruta absoluta proporcionada
+                app_dir = app_path.parent
+                app_exe = str(app_path)
+            else:
+                # Ruta relativa: buscar en base_dir (donde está el watchdog)
+                app_dir = self.base_dir
+                app_exe = str(self.base_dir / app_path)
+            
+            logger.info(f"📂 Directorio de trabajo: {app_dir}")
+            logger.info(f"📄 Ejecutable: {app_exe}")
+            
+            # Save current directory
+            original_cwd = os.getcwd()
+            
+            try:
+                # Change to the app directory before launching
+                os.chdir(str(app_dir))
+                logger.info(f"🔄 Changed working directory to: {os.getcwd()}")
+                
+                # Launch the app - it will inherit the current working directory
+                subprocess.Popen(
+                    [app_exe],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+                
+            finally:
+                # Always restore original directory
+                os.chdir(original_cwd)
+                logger.info(f"🔄 Restored working directory to: {os.getcwd()}")
             
             logger.info(f"✅ {self.app_name} iniciada")
             
-            # Esperar 10 segundos para que cree el lock file
+            # Esperar 30 segundos para que cree el lock file
             logger.info("⏳ Esperando creación de lock file...")
-            time.sleep(10)
+            time.sleep(30)
             
             # Verificar que se creó el lock file
             if self.lock_file.exists():
                 logger.info(f"✅ Lock file creado: {self.lock_file}")
             else:
-                logger.warning(f"⚠️  Lock file NO creado después de 10 segundos")
+                logger.warning(f"⚠️  Lock file NO creado después de 30 segundos")
+                return False
             
             return True
             

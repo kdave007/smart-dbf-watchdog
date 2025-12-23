@@ -1,6 +1,7 @@
 """
 Logger simple con archivo por día - formato: YYYY-MM-DD.log
 """
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -9,7 +10,16 @@ class DailyLogger:
     """Logger que crea un archivo nuevo cada día"""
     
     def __init__(self, log_dir="logs"):
-        self.log_dir = Path(log_dir)
+        # Determinar directorio base (donde está el exe/script)
+        if getattr(sys, 'frozen', False):
+            # Running as exe
+            base_dir = Path(sys.executable).parent
+        else:
+            # Running as script
+            base_dir = Path(__file__).parent.parent  # src/ -> project root
+        
+        self.log_dir = base_dir / log_dir
+        self.base_dir = base_dir  # Guardar para status.txt
         self._ensure_log_dir()
         
         # Obtener archivo de log para HOY
@@ -53,8 +63,9 @@ class DailyLogger:
             header += "[LOGGER] Formato: [FECHA] NIVEL - Mensaje\n"
             header += "="*60 + "\n"
             
-            with open(self.current_log_file, 'a', encoding='utf-8') as f:
+            with open(self.current_log_file, 'a', encoding='utf-8', buffering=1) as f:
                 f.write(header)
+                f.flush()
     
     def _write_to_file(self, file_path, message):
         """Escribe mensaje en archivo específico"""
@@ -62,11 +73,12 @@ class DailyLogger:
         log_line = f"[{timestamp}] {message}\n"
         
         try:
-            with open(file_path, 'a', encoding='utf-8') as f:
+            with open(file_path, 'a', encoding='utf-8', buffering=1) as f:
                 f.write(log_line)
-        except Exception:
-            # Si falla, no hacemos nada (no queremos crashear el watchdog)
-            pass
+                f.flush()
+        except Exception as e:
+            # Si falla, imprimir error pero no crashear
+            print(f"[LOGGER ERROR] No se pudo escribir en {file_path}: {e}")
     
     def _write(self, message):
         """Escribe mensaje en archivo de log actual"""
@@ -93,7 +105,7 @@ class DailyLogger:
     
     def status(self, status_line):
         """Escribe 1 línea en status.txt (para Team Viewer)"""
-        status_file = Path.cwd() / "status.txt"
+        status_file = self.base_dir / "status.txt"
         try:
             with open(status_file, 'w', encoding='utf-8') as f:
                 f.write(f"{datetime.now().strftime('%H:%M')} - {status_line}")
