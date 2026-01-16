@@ -24,8 +24,8 @@ CONFIG = {
     "timeout_minutes": 70,
     "check_interval_minutes": 15,  # Cambia a 15 para producción
     "wait_after_action_minutes": 2,
-    "start_hour": 7,
-    "end_hour": 21,
+    "start_hour": 9,
+    "end_hour": 23,
 }
 
 # Calcular segundos
@@ -69,7 +69,7 @@ def main():
     try:
         # Mostrar banner
         logger.info("=" * 60)
-        logger.info("🛡️  WATCHDOG - Versión robusta con manejo de errores")
+        logger.info("🛡️  WATCHDOG 1.6")
         logger.info(f"📅 Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"📌 CWD: {os.getcwd()}")
         logger.info(f"📌 Frozen: {getattr(sys, 'frozen', False)}")

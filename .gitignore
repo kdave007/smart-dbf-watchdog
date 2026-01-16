@@ -1,0 +1,22 @@
+# Logs
+logs/
+
+# VBScript launcher
+snake.vbs
+
+# Status files
+stopp.txt
+status.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Lock files
+*.lock
+
+# Build artifacts
+build/
+dist/
+*.spec
