@@ -24,8 +24,7 @@ CONFIG = {
     "timeout_minutes": 70,
     "check_interval_minutes": 15,  # Cambia a 15 para producción
     "wait_after_action_minutes": 2,
-    "start_hour": 9,
-    "end_hour": 23,
+    "time_ranges": [(0, 6), (9, 24)],  # 0-6hrs y 9-24hrs
 }
 
 # Calcular segundos
@@ -63,13 +62,53 @@ def interruptible_sleep(seconds):
     return False  # Sleep completado sin interrupción
 
 
+def check_startup_stop_file():
+    """
+    Verifica stop.txt al inicio del watchdog.
+    
+    Returns:
+        True si debe continuar, False si debe detenerse
+    """
+    # Determinar ruta del stop.txt
+    if getattr(sys, 'frozen', False):
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    stop_file = os.path.join(script_dir, "stop.txt")
+    
+    if not os.path.exists(stop_file):
+        return True  # No existe, continuar
+    
+    try:
+        # Leer contenido del archivo
+        with open(stop_file, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+        
+        # Si contiene "FROZEN" (case-insensitive), detener y mantener archivo
+        if content.upper() == "FROZEN":
+            logger.info("🛑 stop.txt contiene 'FROZEN' - Deteniendo watchdog y manteniendo archivo")
+            logger.status("🛑 Detenido por FROZEN en stop.txt")
+            return False
+        
+        # Si está vacío o contiene cualquier otro texto, eliminar y continuar
+        logger.info(f"🗑️ stop.txt encontrado (contenido: '{content[:20]}...') - Eliminando y continuando")
+        os.remove(stop_file)
+        logger.info("✅ stop.txt eliminado, watchdog continuará")
+        return True
+        
+    except Exception as e:
+        logger.warning(f"⚠️ Error leyendo stop.txt: {e} - Continuando de todas formas")
+        return True
+
+
 def main():
     """Función principal - ROBUSTA contra errores"""
     
     try:
         # Mostrar banner
         logger.info("=" * 60)
-        logger.info("🛡️  WATCHDOG 1.6")
+        logger.info("🛡️  WATCHDOG 1.7")
         logger.info(f"📅 Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"📌 CWD: {os.getcwd()}")
         logger.info(f"📌 Frozen: {getattr(sys, 'frozen', False)}")
@@ -77,13 +116,18 @@ def main():
         logger.info(f"📌 __file__: {__file__}")
         logger.info("=" * 60)
         
+        # Verificar stop.txt al inicio
+        if not check_startup_stop_file():
+            return 1
+        
         # Mostrar configuración
         logger.info(f"⚙️  CONFIGURACIÓN:")
         logger.info(f"   📱 App: {CONFIG['app_name']}")
         logger.info(f"   🔒 Lock: {CONFIG['lock_file']}")
         logger.info(f"   ⏱️  Timeout: {CONFIG['timeout_minutes']} min")
         logger.info(f"   🔄 Revisión: cada {CONFIG['check_interval_minutes']} min")
-        logger.info(f"   🕐 Horario: {CONFIG['start_hour']}:00-{CONFIG['end_hour']}:00")
+        ranges_str = ", ".join([f"{start}:00-{end}:00" for start, end in CONFIG['time_ranges']])
+        logger.info(f"   🕐 Horario: {ranges_str}")
         logger.info("=" * 60)
         
         # 1. INICIALIZAR WATCHDOG
@@ -171,6 +215,11 @@ def main():
             # Chequear archivo de stop para finalizar el watchdog
             if os.path.exists(stop_file):
                 logger.info("[STOP] 🛑 stop.txt encontrado. Saliendo del watchdog...")
+                try:
+                    os.remove(stop_file)
+                    logger.info("[STOP] 🗑️ stop.txt eliminado")
+                except Exception as e:
+                    logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
                 logger.status("🛑 Detenido por stop.txt")
                 break
 
@@ -180,8 +229,12 @@ def main():
             logger.info(f"🔄 Ciclo #{ciclo} - {hora_actual}")
             
             # Verificar si estamos en horario
-            if CONFIG["start_hour"] <= datetime.now().hour < CONFIG["end_hour"]:
-                logger.info(f"✅ En horario ({CONFIG['start_hour']}:00-{CONFIG['end_hour']}:00)")
+            current_hour = datetime.now().hour
+            in_schedule = any(start <= current_hour < end for start, end in CONFIG["time_ranges"])
+            
+            if in_schedule:
+                ranges_str = ", ".join([f"{start}:00-{end}:00" for start, end in CONFIG['time_ranges']])
+                logger.info(f"✅ En horario ({ranges_str})")
                 
                 # Verificar estado de la app
                 estado = app_watchdog.check_app_status()
@@ -197,6 +250,12 @@ def main():
                         logger.status("✅ App en ejecución")
                         if interruptible_sleep(CONFIG["wait_after_action"]):
                             logger.info("[STOP] stop.txt detectado durante espera")
+                            try:
+                                os.remove(stop_file)
+                                logger.info("[STOP] 🗑️ stop.txt eliminado")
+                            except Exception as e:
+                                logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
+                            logger.status("🛑 Detenido por stop.txt")
                             break
                     else:
                         logger.error("❌ Error al iniciar app")
@@ -212,6 +271,12 @@ def main():
                         logger.info(f"♻️ App terminada (reinicios: {reinicios})")
                         if interruptible_sleep(10):
                             logger.info("[STOP] stop.txt detectado durante espera")
+                            try:
+                                os.remove(stop_file)
+                                logger.info("[STOP] 🗑️ stop.txt eliminado")
+                            except Exception as e:
+                                logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
+                            logger.status("🛑 Detenido por stop.txt")
                             break
                         
                         if app_watchdog.start_app():
@@ -220,6 +285,12 @@ def main():
                             logger.status("✅ App reiniciada")
                             if interruptible_sleep(CONFIG["wait_after_action"]):
                                 logger.info("[STOP] stop.txt detectado durante espera")
+                                try:
+                                    os.remove(stop_file)
+                                    logger.info("[STOP] 🗑️ stop.txt eliminado")
+                                except Exception as e:
+                                    logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
+                                logger.status("🛑 Detenido por stop.txt")
                                 break
                         else:
                             logger.error("❌ Error al reiniciar")
@@ -233,16 +304,22 @@ def main():
                 elif estado == "running_ok":
                     logger.info("👍 App ejecutándose normalmente")
                     logger.status("👍 App OK")
-                    errores_recientes = 0  # Resetear contador si todo va bien
+                    errores_recientes = 0
             else:
                 logger.info(f"😴 Fuera de horario")
-                logger.status(f"💤 Durmiendo hasta {CONFIG['start_hour']}:00")
+                current_hour = datetime.now().hour
+                next_range = min([start for start, end in CONFIG['time_ranges'] if start > current_hour], default=CONFIG['time_ranges'][0][0])
+                logger.status(f"💤 Durmiendo hasta {next_range}:00")
             
-            # Esperar para próxima revisión
             minutos = CONFIG["check_interval_minutes"]
             logger.info(f"💤 Durmiendo {minutos} minutos...")
             if interruptible_sleep(CONFIG["check_interval"]):
                 logger.info("[STOP] stop.txt detectado durante sleep")
+                try:
+                    os.remove(stop_file)
+                    logger.info("[STOP] 🗑️ stop.txt eliminado")
+                except Exception as e:
+                    logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
                 logger.status("🛑 Detenido por stop.txt")
                 break
             
@@ -252,11 +329,10 @@ def main():
             break
             
         except OSError as e:
-            # ERROR DE SISTEMA OPERATIVO (incluyendo WinError 233 - broken pipe)
             if hasattr(e, 'winerror') and e.winerror == 233:
                 logger.warning(f"⚠️  Broken pipe detectado en ciclo #{ciclo} (proceso terminado inesperadamente)")
                 logger.info("🔄 Continuando con el siguiente ciclo...")
-                errores_recientes = 0  # No contar como error grave
+                errores_recientes = 0
             else:
                 errores_recientes += 1
                 logger.error(f"⚠️  Error OS en ciclo #{ciclo}: {e}")
@@ -264,13 +340,11 @@ def main():
                 logger.status(f"⚠️  Error temporal, continuando...")
             
         except Exception as e:
-            # ERROR EN CICLO - NO DETENER EL WATCHDOG
             errores_recientes += 1
             logger.error(f"⚠️  Error en ciclo #{ciclo}: {e}")
             logger.error(f"📋 Traceback parcial: {traceback.format_exc()[:500]}...")
             logger.status(f"⚠️  Error temporal, continuando...")
             
-            # Registrar error
             try:
                 with open("watchdog_errors.log", "a") as f:
                     f.write(f"[{datetime.now()}] CYCLE {ciclo} ERROR: {str(e)}\n")
@@ -278,22 +352,29 @@ def main():
             except:
                 pass
             
-            # Si hay muchos errores seguidos, esperar más
             if errores_recientes >= 3:
-                wait_time = 300  # 5 minutos
+                wait_time = 300
                 logger.warning(f"⚠️  Muchos errores seguidos ({errores_recientes}), esperando {wait_time//60} min...")
                 if interruptible_sleep(wait_time):
                     logger.info("[STOP] stop.txt detectado durante espera de error")
+                    try:
+                        os.remove(stop_file)
+                        logger.info("[STOP] 🗑️ stop.txt eliminado")
+                    except Exception as e:
+                        logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
                     logger.status("🛑 Detenido por stop.txt")
                     break
             else:
-                # Esperar tiempo normal
                 if interruptible_sleep(CONFIG["check_interval"]):
                     logger.info("[STOP] stop.txt detectado durante espera de error")
+                    try:
+                        os.remove(stop_file)
+                        logger.info("[STOP] 🗑️ stop.txt eliminado")
+                    except Exception as e:
+                        logger.warning(f"[STOP] ⚠️ No se pudo eliminar stop.txt: {e}")
                     logger.status("🛑 Detenido por stop.txt")
                     break
     
-    # 6. FINALIZACIÓN NORMAL
     logger.info("=" * 60)
     logger.info(f"📊 RESUMEN FINAL:")
     logger.info(f"   Ciclos completados: {ciclo}")

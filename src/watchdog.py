@@ -154,13 +154,13 @@ class AppWatchdog:
                 os.chdir(str(app_dir))
                 logger.info(f"🔄 Changed working directory to: {os.getcwd()}")
                 
-                # # Launch the app - it will inherit the current working directory
-                # subprocess.Popen(
-                #     [app_exe],
-                #     stdout=subprocess.DEVNULL,
-                #     stderr=subprocess.DEVNULL,
-                #     creationflags=subprocess.CREATE_NO_WINDOW
-                # )
+                # Launch the app - it will inherit the current working directory
+                subprocess.Popen(
+                    [app_exe],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
                 
             finally:
                 # Always restore original directory

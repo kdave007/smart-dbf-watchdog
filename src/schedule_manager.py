@@ -10,11 +10,11 @@ class SimpleSchedule:
     """
     
     def __init__(self):
-        self.start_hour = 7    # 7:00 AM
-        self.end_hour = 21     # 9:00 PM
+        self.start_hour = 9    # 9:00 AM
+        self.end_hour = 7     # 7:00 AM
     
     def is_within_hours(self):
-        """¿Estamos entre 7AM y 9PM?"""
+        """¿Estamos entre 9AM y 7AM?"""
         now = datetime.now()
         return self.start_hour <= now.hour < self.end_hour
     
