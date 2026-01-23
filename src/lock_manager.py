@@ -9,7 +9,7 @@ import json
 import time
 import subprocess
 import ctypes
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from .logger import logger
 
@@ -77,6 +77,21 @@ class LockManager:
         time.sleep(initial_delay)
         logger.info(f"[LOCK] Delay inicial: {initial_delay:.3f}s para evitar race condition")
         
+        # CLAVE: Si tenemos el mutex pero existe un lock file, es definitivamente stale
+        # El mutex es la fuente de verdad - si lo tenemos, ningún otro watchdog está corriendo
+        if self.lock_path.exists():
+            try:
+                with open(self.lock_path, 'r') as f:
+                    lock_data = json.load(f)
+                lock_pid = lock_data.get('pid', 0)
+                timestamp_str = lock_data.get('timestamp', '')
+                logger.info(f"[LOCK] Lock file huérfano encontrado (PID {lock_pid}, timestamp {timestamp_str})")
+                logger.info(f"[LOCK] Tenemos el mutex → lock es definitivamente stale, removiendo...")
+                self._remove_orphaned_lock()
+            except Exception as e:
+                logger.warning(f"[LOCK] Error leyendo lock huérfano: {e}, removiendo de todas formas...")
+                self.lock_path.unlink(missing_ok=True)
+        
         for attempt in range(max_retries):
             if attempt > 0:
                 # Esperar un poco entre reintentos para evitar race conditions
@@ -84,42 +99,6 @@ class LockManager:
                 time.sleep(wait_ms / 1000.0)
                 logger.info(f"[LOCK] Reintento {attempt + 1}/{max_retries}...")
             
-            # Si el lock existe, verificar si es válido
-            if self.lock_path.exists():
-                try:
-                    # Leer lock existente
-                    with open(self.lock_path, 'r') as f:
-                        lock_data = json.load(f)
-                
-                    timestamp_str = lock_data.get('timestamp', '')
-                    lock_pid = lock_data.get('pid', 0)
-                
-                    # Parsear timestamp
-                    lock_time = datetime.strptime(timestamp_str, self.TIMESTAMP_FORMAT)
-                    current_time = datetime.now()
-                
-                    # Calcular edad del lock en minutos
-                    minutes_old = (current_time - lock_time).total_seconds() / 60
-                
-                    # DECISIÓN:
-                    if minutes_old < self.LOCK_TIMEOUT_MINUTES:
-                        # Lock reciente (< 5 min) → hay otro watchdog activo
-                        logger.warning(f"[LOCK] Otro watchdog activo (PID {lock_pid}, hace {minutes_old:.1f} min)")
-                        return False
-                    else:
-                        # Lock viejo (> 5 min) → verificar si el proceso realmente existe
-                        if self._is_process_running(lock_pid):
-                            logger.warning(f"[LOCK] Lock viejo ({minutes_old:.1f} min) pero proceso {lock_pid} AÚN VIVO → rechazando")
-                            return False
-                        else:
-                            logger.info(f"[LOCK] Lock huérfano detectado ({minutes_old:.1f} min, PID {lock_pid} muerto), removiendo...")
-                            self._remove_orphaned_lock()
-                    
-                except Exception as e:
-                    # Lock corrupto o ilegible
-                    logger.error(f"[LOCK] Error leyendo lock: {e}, removiendo...")
-                    self.lock_path.unlink(missing_ok=True)
-        
             # Crear el lock con modo exclusivo (falla si ya existe)
             # Esto previene race conditions entre múltiples procesos
             try:
@@ -165,6 +144,40 @@ class LockManager:
         # Si llegamos aquí, todos los intentos fallaron
         logger.error(f"[LOCK] No se pudo adquirir lock después de {max_retries} intentos")
         return False
+    
+    def _get_system_boot_time(self) -> datetime:
+        """Obtiene el tiempo de arranque del sistema usando systeminfo de Windows."""
+        try:
+            result = subprocess.run(
+                ['systeminfo', '/FO', 'CSV'],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                timeout=10
+            )
+            
+            # Buscar la línea de System Boot Time
+            for line in result.stdout.split('\n'):
+                if 'System Boot Time' in line or 'Hora de inicio del sistema' in line:
+                    # Extraer el timestamp (formato puede variar según idioma)
+                    # Ejemplo: "...","1/23/2026, 8:00:00 AM","..."
+                    parts = line.split('","')
+                    if len(parts) >= 2:
+                        boot_time_str = parts[1].strip('"')
+                        # Intentar parsear varios formatos
+                        for fmt in ['%m/%d/%Y, %I:%M:%S %p', '%d/%m/%Y, %H:%M:%S', '%Y-%m-%d %H:%M:%S']:
+                            try:
+                                return datetime.strptime(boot_time_str, fmt)
+                            except:
+                                continue
+            
+            # Si no pudimos obtener el boot time, asumir que el sistema arrancó hace mucho tiempo
+            logger.warning("[LOCK] No se pudo obtener system boot time, asumiendo sistema antiguo")
+            return datetime.now() - timedelta(days=365)
+            
+        except Exception as e:
+            logger.warning(f"[LOCK] Error obteniendo boot time: {e}, asumiendo sistema antiguo")
+            return datetime.now() - timedelta(days=365)
     
     def _is_process_running(self, pid: int) -> bool:
         """Verifica si un proceso con el PID dado está corriendo usando tasklist de Windows."""

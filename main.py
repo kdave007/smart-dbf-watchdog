@@ -103,12 +103,12 @@ def check_startup_stop_file():
 
 
 def main():
-    """Función principal - ROBUSTA contra errores"""
+    """Función principal"""
     
     try:
         # Mostrar banner
         logger.info("=" * 60)
-        logger.info("🛡️  WATCHDOG 1.7")
+        logger.info("🛡️  WATCHDOG 1.8.4")
         logger.info(f"📅 Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"📌 CWD: {os.getcwd()}")
         logger.info(f"📌 Frozen: {getattr(sys, 'frozen', False)}")
